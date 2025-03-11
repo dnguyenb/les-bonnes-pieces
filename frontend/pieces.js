@@ -49,3 +49,35 @@ for (let i = 0; i < pieces.length; i++) {
 	pieceElement.appendChild(descriptionElement);
 	pieceElement.appendChild(stockElement);
 }
+
+/* Filtres des pièces */
+// bouton Trier avec sort() :
+const btnTrier = document.querySelector('.btn-trier');
+btnTrier.addEventListener('click', () => {
+	// copie du tableau de pieces :
+	const piecesOrdonnees = [...pieces];
+	piecesOrdonnees.sort((a, b) => a.prix - b.prix);
+	console.log(piecesOrdonnees);
+});
+
+// bouton Trier par prix décroissant avec sort() :
+const btnDecroissant = document.querySelector('.btn-decroissant');
+btnDecroissant.addEventListener('click', () => {
+	const piecesOrdonnees = [...pieces];
+	piecesOrdonnees.sort((a, b) => b.prix - a.prix);
+	console.log(piecesOrdonnees);
+});
+
+// bouton Filtrer prix abordables avec filter() :
+const btnFiltrer = document.querySelector('.btn-filtrer');
+btnFiltrer.addEventListener('click', () => {
+	const piecesFiltrees = pieces.filter((piece) => piece.prix <= 35);
+	console.log(piecesFiltrees);
+});
+
+// bouton Filter pieces sans decription avec filter() :
+const btnFiltrerNoDesc = document.querySelector('.btn-nodesc');
+btnFiltrerNoDesc.addEventListener('click', () => {
+	const piecesFiltrees = pieces.filter((piece) => piece.description);
+	console.log(piecesFiltrees);
+});
