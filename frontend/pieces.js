@@ -59,7 +59,8 @@ btnTrier.addEventListener('click', () => {
 	// copie du tableau de pieces :
 	const piecesOrdonnees = [...pieces];
 	piecesOrdonnees.sort((a, b) => a.prix - b.prix);
-	console.log(piecesOrdonnees);
+	document.querySelector('.fiches').innerHTML = '';
+	genererPieces(piecesOrdonnees);
 });
 
 // bouton Trier par prix décroissant avec sort() :
@@ -67,21 +68,39 @@ const btnDecroissant = document.querySelector('.btn-decroissant');
 btnDecroissant.addEventListener('click', () => {
 	const piecesOrdonnees = [...pieces];
 	piecesOrdonnees.sort((a, b) => b.prix - a.prix);
-	console.log(piecesOrdonnees);
+	document.querySelector('.fiches').innerHTML = '';
+	genererPieces(piecesOrdonnees);
 });
 
 // bouton Filtrer prix abordables avec filter() :
 const btnFiltrer = document.querySelector('.btn-filtrer');
 btnFiltrer.addEventListener('click', () => {
 	const piecesFiltrees = pieces.filter((piece) => piece.prix <= 35);
-	console.log(piecesFiltrees);
+	document.querySelector('.fiches').innerHTML = '';
+	genererPieces(piecesFiltrees);
 });
 
 // bouton Filter pieces sans decription avec filter() :
 const btnFiltrerNoDesc = document.querySelector('.btn-nodesc');
 btnFiltrerNoDesc.addEventListener('click', () => {
 	const piecesFiltrees = pieces.filter((piece) => piece.description);
-	console.log(piecesFiltrees);
+	document.querySelector('.fiches').innerHTML = '';
+	genererPieces(piecesFiltrees);
+});
+
+// Balise input [range] pour filtrer par prix :
+const inputPrixMax = document.getElementById('prix-max');
+inputPrixMax.addEventListener('input', (event) => {
+	const valeur = event.target.value;
+	const piecesFiltrees = pieces.filter((piece) => piece.prix <= valeur);
+	document.querySelector('.fiches').innerHTML = '';
+	genererPieces(piecesFiltrees);
+});
+
+// bouton reset
+document.querySelector('.btn-reset').addEventListener('click', () => {
+	document.querySelector('.fiches').innerHTML = '';
+	genererPieces(pieces);
 });
 
 // Affichage nom des pieces uniquement :
