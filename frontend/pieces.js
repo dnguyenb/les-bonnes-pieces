@@ -1,56 +1,58 @@
-const reponse = await fetch('pieces-autos.json');
-const pieces = await reponse.json();
+// Récupération des pièces automobiles depuis le fichier JSON :
+const pieces = await fetch('pieces-autos.json').then((response) =>
+	response.json()
+);
 
-// for (let piece of pieces) {
-// 	const articleElement = `<img src="${piece.image}" alt="${piece.nom}">
-//   <h2>${piece.nom}</h2>;
-//   <p>Prix : ${piece.prix} € | (${piece.prix < 35 ? '€' : '€€€'})</p>
-//   <p>${piece.categorie ?? 'Non catégorisé'}</p>
-//  <p>${piece.description ?? 'Pas de description pour le moment.'}</p>
-// <p>${piece.disponibilite ? 'En stock' : 'Rupture de stock'}</p>`;
-// 	sectionFiches.innerHTML += articleElement;
-// }
+// Fonction qui génère la page web :
+const genererPieces = (pieces) => {
+	// Pour chaque pièce automobile
+	for (let piece of pieces) {
+		// Récupération de l'élément du DOM qui accueillera les fiches
+		const sectionFiches = document.querySelector('.fiches');
+		// Création d’une balise dédiée à une pièce automobile
+		const pieceElement = document.createElement('article');
 
-// Récupération des pièces depuis le fichier JSON
+		// Création image
+		const imageElement = document.createElement('img');
+		imageElement.src = piece.image;
 
-for (let i = 0; i < pieces.length; i++) {
-	const article = pieces[i];
-	// Récupération de l'élément du DOM qui accueillera les fiches
-	const sectionFiches = document.querySelector('.fiches');
-	// Création d’une balise dédiée à une pièce automobile
-	const pieceElement = document.createElement('article');
-	// Création des balises
-	const imageElement = document.createElement('img');
-	imageElement.src = article.image;
-	const nomElement = document.createElement('h2');
-	nomElement.innerText = article.nom;
-	const prixElement = document.createElement('p');
-	prixElement.innerText = `Prix: ${article.prix} € (${
-		article.prix < 35 ? '€' : '€€€'
-	})`;
-	const categorieElement = document.createElement('p');
-	categorieElement.innerText = article.categorie ?? '(aucune catégorie)';
-	const descriptionElement = document.createElement('p');
-	descriptionElement.innerText =
-		article.description ?? 'Pas de description pour le moment.';
-	const stockElement = document.createElement('p');
-	stockElement.innerText = article.disponibilite
-		? 'En stock'
-		: 'Rupture de stock';
+		// Création nom
+		const nomElement = document.createElement('h2');
+		nomElement.innerText = piece.nom;
 
-	// On rattache la balise article a la section Fiches
-	sectionFiches.appendChild(pieceElement);
-	// On rattache l’image à pieceElement (la balise article)
-	pieceElement.appendChild(imageElement);
-	pieceElement.appendChild(nomElement);
-	pieceElement.appendChild(prixElement);
-	pieceElement.appendChild(categorieElement);
-	//Ajout des éléments au DOM pour l'exercice
-	pieceElement.appendChild(descriptionElement);
-	pieceElement.appendChild(stockElement);
-}
+		// Création prix (opérateur ternaire)
+		const prixElement = document.createElement('p');
+		prixElement.innerText = `Prix: ${piece.prix} € (${
+			piece.prix < 35 ? '€' : '€€€'
+		})`;
 
-/* Filtres des pièces */
+		// Création catégorie
+		const categorieElement = document.createElement('p');
+		categorieElement.innerText = piece.categorie ?? '(aucune catégorie)';
+		const descriptionElement = document.createElement('p');
+
+		// Création description (opérateur nullish)
+		descriptionElement.innerText =
+			piece.description ?? 'Pas de description pour le moment.';
+		const stockElement = document.createElement('p');
+		stockElement.innerText = piece.disponibilite
+			? 'En stock'
+			: 'Rupture de stock';
+
+		// On rattache les balises
+		sectionFiches.appendChild(pieceElement);
+		pieceElement.appendChild(imageElement);
+		pieceElement.appendChild(nomElement);
+		pieceElement.appendChild(prixElement);
+		pieceElement.appendChild(categorieElement);
+		pieceElement.appendChild(descriptionElement);
+	}
+};
+
+// Premier affichage de la page
+genererPieces(pieces);
+
+/* Tri et Filtre des pièces */
 // bouton Trier avec sort() :
 const btnTrier = document.querySelector('.btn-trier');
 btnTrier.addEventListener('click', () => {
@@ -112,7 +114,6 @@ const disponiblesElements = document.createElement('ul');
 
 for (let i = 0; i < disponibles.length; i++) {
 	const disponibleElement = document.createElement('li');
-	console.log(disponibles[i]);
 	disponibleElement.innerText = disponibles[i];
 	disponiblesElements.appendChild(disponibleElement);
 }
