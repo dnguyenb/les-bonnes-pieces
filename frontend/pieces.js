@@ -81,3 +81,40 @@ btnFiltrerNoDesc.addEventListener('click', () => {
 	const piecesFiltrees = pieces.filter((piece) => piece.description);
 	console.log(piecesFiltrees);
 });
+
+// Affichage nom des pieces uniquement :
+const noms = pieces.map((piece) => piece.nom);
+for (let i = noms.length - 1; i >= 0; i--) {
+	if (pieces[i].prix > 35) {
+		noms.splice(i, 1);
+	}
+}
+
+// Création de la liste des noms des pièces abordables
+const abordablesElements = document.createElement('ul');
+
+for (let i = 0; i < noms.length; i++) {
+	const nomElement = document.createElement('li');
+	nomElement.innerText = noms[i];
+	abordablesElements.appendChild(nomElement);
+}
+
+document.querySelector('.abordables').appendChild(abordablesElements);
+
+// Création de la liste des pièces disponibles :
+const disponibles = pieces.map((piece) => `${piece.nom} - ${piece.prix} €`);
+for (let i = noms.length - 1; i >= 0; i--) {
+	if (!pieces[i].disponibilite) {
+		disponibles.splice(i, 1);
+	}
+}
+const disponiblesElements = document.createElement('ul');
+
+for (let i = 0; i < disponibles.length; i++) {
+	const disponibleElement = document.createElement('li');
+	console.log(disponibles[i]);
+	disponibleElement.innerText = disponibles[i];
+	disponiblesElements.appendChild(disponibleElement);
+}
+
+document.querySelector('.disponibles').appendChild(disponiblesElements);
