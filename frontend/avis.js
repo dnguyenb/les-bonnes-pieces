@@ -13,8 +13,18 @@ export function ajoutListenersAvis() {
 				avisElement.innerHTML += `<b>${avis[i].utilisateur} :</b> <br /> ${avis[i].commentaire}<br>`;
 			}
 			piecesElements[i].appendChild(avisElement);
+			const pieceElement = event.target.parentElement;
+			afficherAvis(pieceElement, avis);
 		});
 	}
+}
+
+export function afficherAvis(pieceElement, avis) {
+	const avisElement = document.createElement('p');
+	for (let i = 0; i < avis.length; i++) {
+		avisElement.innerHTML += `<b>${avis[i].utilisateur} :</b> <br /> ${avis[i].commentaire}<br>`;
+	}
+	pieceElement.appendChild(avisElement);
 }
 
 export function ajoutListenerEnvoyerAvis() {

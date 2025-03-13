@@ -1,4 +1,8 @@
-import { ajoutListenerEnvoyerAvis, ajoutListenersAvis } from './avis.js';
+import {
+	ajoutListenerEnvoyerAvis,
+	ajoutListenersAvis,
+	afficherAvis,
+} from './avis.js';
 
 let pieces = window.localStorage.getItem('pieces');
 if (pieces === null) {
@@ -23,7 +27,7 @@ const genererPieces = (pieces) => {
 		const sectionFiches = document.querySelector('.fiches');
 		// Création d’une balise dédiée à une pièce automobile
 		const pieceElement = document.createElement('article');
-
+		pieceElement.dataset.id = piece.id;
 		// Création image
 		const imageElement = document.createElement('img');
 		imageElement.src = piece.image;
@@ -70,6 +74,17 @@ const genererPieces = (pieces) => {
 
 // Premier affichage de la page
 genererPieces(pieces);
+
+for (let i = 0; i < pieces.length; i++) {
+	const id = pieces[i].id;
+	const avisJSON = window.localStorage.getItem(`avis-piece-${id}`);
+	const avis = JSON.parse(avisJSON);
+
+	if (avis !== null) {
+		const pieceElement = document.querySelector(`article[data-id="${id}"]`);
+		afficherAvis(pieceElement, avis);
+	}
+}
 
 /* Tri et Filtre des pièces */
 // bouton Trier avec sort() :
