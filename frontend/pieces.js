@@ -122,7 +122,7 @@ document.querySelector('.btn-reset').addEventListener('click', () => {
 	genererPieces(pieces);
 });
 
-// Bouton de mise à jour de la liste des pièces dans le Local Storage
+// Bouton de mise à jour de la liste des pièces dans le LEocal Storage
 const btnMiseAJour = document.querySelector('.btn-maj');
 
 btnMiseAJour.addEventListener('click', () => {
