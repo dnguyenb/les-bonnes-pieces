@@ -1,9 +1,20 @@
-import { ajoutListenersAvis, ajoutListenerEnvoyerAvis } from './avis.js';
+import {
+	ajoutListenerEnvoyerAvis,
+	ajoutListenersAvis,
+	afficherAvis,
+} from './avis.js';
 
-// Récupération des pièces automobiles depuis le fichier JSON :
-const pieces = await fetch('http://localhost:8081/pieces')
-	.then((res) => res.json())
-	.catch((err) => console.error(err));
+let pieces = window.localStorage.getItem('pieces');
+if (pieces === null) {
+	// Récupération des pièces automobiles depuis le fichier JSON :
+	const pieces = await fetch('http://localhost:8081/pieces')
+		.then((res) => res.json())
+		.catch((err) => console.error(err));
+
+	window.localStorage.setItem('pieces', JSON.stringify(pieces));
+} else {
+	pieces = JSON.parse(pieces);
+}
 
 // Ajout du listener au formulaire avis
 ajoutListenerEnvoyerAvis();
@@ -16,7 +27,7 @@ const genererPieces = (pieces) => {
 		const sectionFiches = document.querySelector('.fiches');
 		// Création d’une balise dédiée à une pièce automobile
 		const pieceElement = document.createElement('article');
-
+		pieceElement.dataset.id = piece.id;
 		// Création image
 		const imageElement = document.createElement('img');
 		imageElement.src = piece.image;
@@ -64,6 +75,17 @@ const genererPieces = (pieces) => {
 // Premier affichage de la page
 genererPieces(pieces);
 
+for (let i = 0; i < pieces.length; i++) {
+	const id = pieces[i].id;
+	const avisJSON = window.localStorage.getItem(`avis-piece-${id}`);
+	const avis = JSON.parse(avisJSON);
+
+	if (avis !== null) {
+		const pieceElement = document.querySelector(`article[data-id="${id}"]`);
+		afficherAvis(pieceElement, avis);
+	}
+}
+
 /* Tri et Filtre des pièces */
 // bouton Trier avec sort() :
 const btnTrier = document.querySelector('.btn-trier');
@@ -101,7 +123,7 @@ btnFiltrerNoDesc.addEventListener('click', () => {
 });
 
 // Balise input [range] pour filtrer par prix :
-const inputPrixMax = document.getElementById('prix-max');
+const inputPrixMax = document.getElementById('range');
 inputPrixMax.addEventListener('input', (event) => {
 	const valeur = event.target.value;
 	const piecesFiltrees = pieces.filter((piece) => piece.prix <= valeur);
@@ -115,39 +137,9 @@ document.querySelector('.btn-reset').addEventListener('click', () => {
 	genererPieces(pieces);
 });
 
-/*
-// Affichage nom des pieces uniquement :
-const noms = pieces.map((piece) => piece.nom);
-for (let i = noms.length - 1; i >= 0; i--) {
-	if (pieces[i].prix > 35) {
-		noms.splice(i, 1);
-	}
-}
+// Bouton de mise à jour de la liste des pièces dans le LEocal Storage
+const btnMiseAJour = document.querySelector('.btn-maj');
 
-// Création de la liste des noms des pièces abordables
-const abordablesElements = document.createElement('ul');
-
-for (let i = 0; i < noms.length; i++) {
-	const nomElement = document.createElement('li');
-	nomElement.innerText = noms[i];
-	abordablesElements.appendChild(nomElement);
-}
-
-document.querySelector('.abordables').appendChild(abordablesElements);
-
-// Création de la liste des pièces disponibles :
-const disponibles = pieces.map((piece) => `${piece.nom} - ${piece.prix} €`);
-for (let i = noms.length - 1; i >= 0; i--) {
-	if (!pieces[i].disponibilite) {
-		disponibles.splice(i, 1);
-	}
-}
-const disponiblesElements = document.createElement('ul');
-
-for (let i = 0; i < disponibles.length; i++) {
-	const disponibleElement = document.createElement('li');
-	disponibleElement.innerText = disponibles[i];
-	disponiblesElements.appendChild(disponibleElement);
-}
-
-document.querySelector('.disponibles').appendChild(disponiblesElements); */
+btnMiseAJour.addEventListener('click', () => {
+	window.localStorage.removeItem('pieces');
+});

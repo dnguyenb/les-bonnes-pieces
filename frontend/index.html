@@ -28,40 +28,43 @@
 				<br />
 				<label for="range">Prix maximum :</label>
 				<br />
-				<input
-					type="range"
-					id="prix-max"
-					min="0"
-					max="60"
-					step="5"
-					value="60"
-				/>
+				<input type="range" id="range" min="0" max="60" step="5" value="60" />
 				<br />
 				<button type="reset" class="btn-reset">Reset</button>
 				<br />
 				<h3>Ajouter un avis</h3>
 				<form class="formulaire-avis">
 					Identifiant de la pièce :<br />
-					<input type="number" name="piece-id" /><br />
+					<input type="number" name="piece-id" aria-label="champs id" /><br />
 					Nom d'utilisateur :<br />
-					<input type="text" name="utilisateur" /><br />
+					<input
+						type="text"
+						name="utilisateur"
+						aria-label="champs utilisateur"
+					/><br />
 					Avis :<br />
-					<input type="text" name="commentaire" /><br />
+					<input
+						type="text"
+						name="commentaire"
+						aria-label="champs commentaire"
+					/><br />
 					Note :<br />
-					<input type="number" name="nbEtoiles" min="0" max="5" /><br />
+					<input
+						type="number"
+						name="nbEtoiles"
+						min="0"
+						max="5"
+						aria-label="Note"
+					/><br />
 					<button>Envoyer</button>
 				</form>
+
+				<h3>Données</h3>
+				<button class="btn-maj">Mettre à jour les pièces</button>
 			</section>
 
 			<!-- Fiches produits -->
-			<section class="fiches">
-				<!-- <div class="abordables">
-					<p>Pièces à - de 35 € :</p>
-				</div>
-				<div class="disponibles">
-					<p>Pièces disponibles :</p>
-				</div> -->
-			</section>
+			<section class="fiches"></section>
 		</main>
 	</body>
 </html>
