@@ -1,9 +1,12 @@
-import { ajoutListenersAvis } from './avis.js';
+import { ajoutListenersAvis, ajoutListenerEnvoyerAvis } from './avis.js';
 
 // Récupération des pièces automobiles depuis le fichier JSON :
-const pieces = await fetch('pieces-autos.json').then((response) =>
-	response.json()
-);
+const pieces = await fetch('http://localhost:8081/pieces')
+	.then((res) => res.json())
+	.catch((err) => console.error(err));
+
+// Ajout du listener au formulaire avis
+ajoutListenerEnvoyerAvis();
 
 // Fonction qui génère la page web :
 const genererPieces = (pieces) => {
