@@ -4,7 +4,7 @@
 		<meta charset="utf-8" />
 		<title>Les Bonnes Pièces</title>
 		<link rel="stylesheet" href="styles.css" />
-		<script type="module" src="pieces.js" defer></script>
+		<script type="module" src="./pieces.js" defer></script>
 	</head>
 	<body>
 		<header>
@@ -37,17 +37,30 @@
 					value="60"
 				/>
 				<br />
-				<button class="btn-reset">Reset</button>
+				<button type="reset" class="btn-reset">Reset</button>
+				<br />
+				<h3>Ajouter un avis</h3>
+				<form class="formulaire-avis">
+					Identifiant de la pièce :<br />
+					<input type="number" name="piece-id" /><br />
+					Nom d'utilisateur :<br />
+					<input type="text" name="utilisateur" /><br />
+					Avis :<br />
+					<input type="text" name="commentaire" /><br />
+					Note :<br />
+					<input type="number" name="nbEtoiles" min="0" max="5" /><br />
+					<button>Envoyer</button>
+				</form>
 			</section>
 
 			<!-- Fiches produits -->
 			<section class="fiches">
-				<div class="abordables">
+				<!-- <div class="abordables">
 					<p>Pièces à - de 35 € :</p>
 				</div>
 				<div class="disponibles">
 					<p>Pièces disponibles :</p>
-				</div>
+				</div> -->
 			</section>
 		</main>
 	</body>

@@ -1,7 +1,12 @@
+import { ajoutListenersAvis, ajoutListenerEnvoyerAvis } from './avis.js';
+
 // Récupération des pièces automobiles depuis le fichier JSON :
-const pieces = await fetch('pieces-autos.json').then((response) =>
-	response.json()
-);
+const pieces = await fetch('http://localhost:8081/pieces')
+	.then((res) => res.json())
+	.catch((err) => console.error(err));
+
+// Ajout du listener au formulaire avis
+ajoutListenerEnvoyerAvis();
 
 // Fonction qui génère la page web :
 const genererPieces = (pieces) => {
@@ -39,6 +44,11 @@ const genererPieces = (pieces) => {
 			? 'En stock'
 			: 'Rupture de stock';
 
+		// Création bouton pour afficher les avis
+		const btnAvisElement = document.createElement('button');
+		btnAvisElement.dataset.id = piece.id;
+		btnAvisElement.textContent = 'Afficher les avis';
+
 		// On rattache les balises
 		sectionFiches.appendChild(pieceElement);
 		pieceElement.appendChild(imageElement);
@@ -46,7 +56,9 @@ const genererPieces = (pieces) => {
 		pieceElement.appendChild(prixElement);
 		pieceElement.appendChild(categorieElement);
 		pieceElement.appendChild(descriptionElement);
+		pieceElement.appendChild(btnAvisElement);
 	}
+	ajoutListenersAvis();
 };
 
 // Premier affichage de la page
@@ -103,6 +115,7 @@ document.querySelector('.btn-reset').addEventListener('click', () => {
 	genererPieces(pieces);
 });
 
+/*
 // Affichage nom des pieces uniquement :
 const noms = pieces.map((piece) => piece.nom);
 for (let i = noms.length - 1; i >= 0; i--) {
@@ -137,4 +150,4 @@ for (let i = 0; i < disponibles.length; i++) {
 	disponiblesElements.appendChild(disponibleElement);
 }
 
-document.querySelector('.disponibles').appendChild(disponiblesElements);
+document.querySelector('.disponibles').appendChild(disponiblesElements); */
