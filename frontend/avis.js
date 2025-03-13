@@ -26,6 +26,7 @@ export function ajoutListenerEnvoyerAvis() {
 			pieceId: parseInt(event.target.querySelector('[name=piece-id]').value),
 			utilisateur: event.target.querySelector('[name=utilisateur').value,
 			commentaire: event.target.querySelector('[name=commentaire]').value,
+			nbEtoiles: parseInt(event.target.querySelector('[name=nbEtoiles]').value),
 		};
 		// Création de la charge utile au format JSON
 		const chargeUtile = JSON.stringify(avis);
