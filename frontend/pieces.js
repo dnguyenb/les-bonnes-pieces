@@ -1,7 +1,8 @@
 import {
+	afficherAvis,
+	afficherGraphiqueAvis,
 	ajoutListenerEnvoyerAvis,
 	ajoutListenersAvis,
-	afficherAvis,
 } from './avis.js';
 
 let pieces = window.localStorage.getItem('pieces');
@@ -93,6 +94,7 @@ btnTrier.addEventListener('click', () => {
 	// copie du tableau de pieces :
 	const piecesOrdonnees = [...pieces];
 	piecesOrdonnees.sort((a, b) => a.prix - b.prix);
+
 	document.querySelector('.fiches').innerHTML = '';
 	genererPieces(piecesOrdonnees);
 });
@@ -143,3 +145,5 @@ const btnMiseAJour = document.querySelector('.btn-maj');
 btnMiseAJour.addEventListener('click', () => {
 	window.localStorage.removeItem('pieces');
 });
+
+await afficherGraphiqueAvis();
