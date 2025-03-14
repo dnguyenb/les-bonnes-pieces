@@ -4,15 +4,26 @@ export function ajoutListenersAvis() {
 	for (let i = 0; i < piecesElements.length; i++) {
 		piecesElements[i].addEventListener('click', async (event) => {
 			const id = event.target.dataset.id;
-			const avis = await fetch(`http://localhost:8081/pieces/${id}/avis`)
-				.then((res) => res.json())
-				.catch((error) => console.error('Erreur :', error));
-
-			const pieceElement = event.target.parentElement;
-			afficherAvis(pieceElement, avis);
+			try {
+				// Utiliser le filtre de json-server pour obtenir les avis d'une pièce spécifique
+				const response = await fetch(
+					`http://localhost:8081/avis?pieceId=${id}`
+				);
+				if (!response.ok) {
+					throw new Error(`Erreur HTTP: ${response.status}`);
+				}
+				const avis = await response.json();
+				const pieceElement = event.target.parentElement;
+				afficherAvis(pieceElement, avis);
+			} catch (error) {
+				console.error('Erreur lors de la récupération des avis:', error);
+				const pieceElement = event.target.parentElement;
+				afficherAvis(pieceElement, []); // Afficher "Aucun avis" en cas d'erreur
+			}
 		});
 	}
 }
+
 export function afficherAvis(pieceElement, avis) {
 	// Création d'un élément pour afficher les avis
 	const avisElement = document.createElement('div');
@@ -40,7 +51,7 @@ export function ajoutListenerEnvoyerAvis() {
 	const formulaireAvis = document.querySelector('.formulaire-avis');
 	formulaireAvis.addEventListener('submit', async (event) => {
 		event.preventDefault();
-		// Création de l’objet du nouvel avis.
+		// Création de l'objet du nouvel avis.
 		const avis = {
 			pieceId: parseInt(event.target.querySelector('[name=piece-id]').value),
 			utilisateur: event.target.querySelector('[name=utilisateur').value,
@@ -50,7 +61,7 @@ export function ajoutListenerEnvoyerAvis() {
 		// Création de la charge utile au format JSON
 		const chargeUtile = JSON.stringify(avis);
 
-		// Envoi de l’avis au serveur
+		// Envoi de l'avis au serveur
 		try {
 			const response = await fetch('http://localhost:8081/avis', {
 				method: 'POST',

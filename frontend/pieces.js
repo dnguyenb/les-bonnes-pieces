@@ -4,122 +4,16 @@ import {
 	ajoutListenerEnvoyerAvis,
 	ajoutListenersAvis,
 } from './avis.js';
+import { envoyerAvisGenere, genererMultiplesAvis } from './generer-avis.js';
 
-// Fonction qui s'exécute une fois que le DOM est complètement chargé
-document.addEventListener('DOMContentLoaded', async () => {
-	let pieces = window.localStorage.getItem('pieces');
-
-	if (pieces === null) {
-		try {
-			// Récupération des pièces automobiles depuis le fichier JSON :
-			const reponse = await fetch('http://localhost:8081/pieces');
-			if (!reponse.ok) {
-				throw new Error(`Erreur HTTP: ${reponse.status}`);
-			}
-			const piecesData = await reponse.json();
-			window.localStorage.setItem('pieces', JSON.stringify(piecesData));
-			pieces = piecesData;
-		} catch (err) {
-			console.error('Erreur lors de la récupération des pièces:', err);
-			// Initialiser avec un tableau vide en cas d'erreur
-			pieces = [];
-		}
-	} else {
-		pieces = JSON.parse(pieces);
-	}
-
-	// Ajout du listener au formulaire avis
-	ajoutListenerEnvoyerAvis();
-
-	// Premier affichage de la page
-	genererPieces(pieces);
-
-	// Affichage des avis stockés localement
-	for (let i = 0; i < pieces.length; i++) {
-		const id = pieces[i].id;
-		const avisJSON = window.localStorage.getItem(`avis-piece-${id}`);
-
-		if (avisJSON !== null) {
-			const avis = JSON.parse(avisJSON);
-			const pieceElement = document.querySelector(`article[data-id="${id}"]`);
-			if (pieceElement) {
-				afficherAvis(pieceElement, avis);
-			}
-		}
-	}
-
-	// Initialisation des graphiques
-	try {
-		await afficherGraphiqueAvis();
-	} catch (error) {
-		console.error("Erreur lors de l'affichage des graphiques:", error);
-	}
-
-	/* Tri et Filtre des pièces */
-	// bouton Trier avec sort() :
-	const btnTrier = document.querySelector('.btn-trier');
-	btnTrier.addEventListener('click', () => {
-		// copie du tableau de pieces :
-		const piecesOrdonnees = [...pieces];
-		piecesOrdonnees.sort((a, b) => a.prix - b.prix);
-
-		document.querySelector('.fiches').innerHTML = '';
-		genererPieces(piecesOrdonnees);
-	});
-
-	// bouton Trier par prix décroissant avec sort() :
-	const btnDecroissant = document.querySelector('.btn-decroissant');
-	btnDecroissant.addEventListener('click', () => {
-		const piecesOrdonnees = [...pieces];
-		piecesOrdonnees.sort((a, b) => b.prix - a.prix);
-		document.querySelector('.fiches').innerHTML = '';
-		genererPieces(piecesOrdonnees);
-	});
-
-	// bouton Filtrer prix abordables avec filter() :
-	const btnFiltrer = document.querySelector('.btn-filtrer');
-	btnFiltrer.addEventListener('click', () => {
-		const piecesFiltrees = pieces.filter((piece) => piece.prix <= 35);
-		document.querySelector('.fiches').innerHTML = '';
-		genererPieces(piecesFiltrees);
-	});
-
-	// bouton Filter pieces sans decription avec filter() :
-	const btnFiltrerNoDesc = document.querySelector('.btn-nodesc');
-	btnFiltrerNoDesc.addEventListener('click', () => {
-		const piecesFiltrees = pieces.filter((piece) => piece.description);
-		document.querySelector('.fiches').innerHTML = '';
-		genererPieces(piecesFiltrees);
-	});
-
-	// Balise input [range] pour filtrer par prix :
-	const inputPrixMax = document.getElementById('range');
-	inputPrixMax.addEventListener('input', (event) => {
-		const valeur = event.target.value;
-		const piecesFiltrees = pieces.filter((piece) => piece.prix <= valeur);
-		document.querySelector('.fiches').innerHTML = '';
-		genererPieces(piecesFiltrees);
-	});
-
-	// bouton reset
-	document.querySelector('.btn-reset').addEventListener('click', () => {
-		document.querySelector('.fiches').innerHTML = '';
-		genererPieces(pieces);
-	});
-
-	// Bouton de mise à jour de la liste des pièces dans le Local Storage
-	const btnMiseAJour = document.querySelector('.btn-maj');
-	btnMiseAJour.addEventListener('click', async () => {
-		window.localStorage.removeItem('pieces');
-		// Recharger la page pour effectuer une nouvelle requête
-		window.location.reload();
-	});
-});
+// Variable globale pour stocker les pièces
+let pieces = [];
 
 // Fonction qui génère la page web :
 const genererPieces = (pieces) => {
 	// Récupération de l'élément du DOM qui accueillera les fiches
 	const sectionFiches = document.querySelector('.fiches');
+	if (!sectionFiches) return;
 
 	// Vider la section avant de générer les pièces
 	sectionFiches.innerHTML = '';
@@ -180,77 +74,171 @@ const genererPieces = (pieces) => {
 	ajoutListenersAvis();
 };
 
-// Premier affichage de la page
-genererPieces(pieces);
-
-for (let i = 0; i < pieces.length; i++) {
-	const id = pieces[i].id;
-	const avisJSON = window.localStorage.getItem(`avis-piece-${id}`);
-	const avis = JSON.parse(avisJSON);
-
-	if (avis !== null) {
-		const pieceElement = document.querySelector(`article[data-id="${id}"]`);
-		afficherAvis(pieceElement, avis);
+// Fonction qui initialise les event listeners
+const initializeEventListeners = () => {
+	// bouton Trier avec sort() :
+	const btnTrier = document.querySelector('.btn-trier');
+	if (btnTrier) {
+		btnTrier.addEventListener('click', () => {
+			const piecesOrdonnees = [...pieces];
+			piecesOrdonnees.sort((a, b) => a.prix - b.prix);
+			genererPieces(piecesOrdonnees);
+		});
 	}
-}
 
-/* Tri et Filtre des pièces */
-// bouton Trier avec sort() :
-const btnTrier = document.querySelector('.btn-trier');
-btnTrier.addEventListener('click', () => {
-	// copie du tableau de pieces :
-	const piecesOrdonnees = [...pieces];
-	piecesOrdonnees.sort((a, b) => a.prix - b.prix);
+	// bouton Trier par prix décroissant avec sort() :
+	const btnDecroissant = document.querySelector('.btn-decroissant');
+	if (btnDecroissant) {
+		btnDecroissant.addEventListener('click', () => {
+			const piecesOrdonnees = [...pieces];
+			piecesOrdonnees.sort((a, b) => b.prix - a.prix);
+			genererPieces(piecesOrdonnees);
+		});
+	}
 
-	document.querySelector('.fiches').innerHTML = '';
-	genererPieces(piecesOrdonnees);
-});
+	// bouton Filtrer prix abordables avec filter() :
+	const btnFiltrer = document.querySelector('.btn-filtrer');
+	if (btnFiltrer) {
+		btnFiltrer.addEventListener('click', () => {
+			const piecesFiltrees = pieces.filter((piece) => piece.prix <= 35);
+			genererPieces(piecesFiltrees);
+		});
+	}
 
-// bouton Trier par prix décroissant avec sort() :
-const btnDecroissant = document.querySelector('.btn-decroissant');
-btnDecroissant.addEventListener('click', () => {
-	const piecesOrdonnees = [...pieces];
-	piecesOrdonnees.sort((a, b) => b.prix - a.prix);
-	document.querySelector('.fiches').innerHTML = '';
-	genererPieces(piecesOrdonnees);
-});
+	// bouton Filter pieces sans description avec filter() :
+	const btnFiltrerNoDesc = document.querySelector('.btn-nodesc');
+	if (btnFiltrerNoDesc) {
+		btnFiltrerNoDesc.addEventListener('click', () => {
+			const piecesFiltrees = pieces.filter((piece) => piece.description);
+			genererPieces(piecesFiltrees);
+		});
+	}
 
-// bouton Filtrer prix abordables avec filter() :
-const btnFiltrer = document.querySelector('.btn-filtrer');
-btnFiltrer.addEventListener('click', () => {
-	const piecesFiltrees = pieces.filter((piece) => piece.prix <= 35);
-	document.querySelector('.fiches').innerHTML = '';
-	genererPieces(piecesFiltrees);
-});
+	// Balise input [range] pour filtrer par prix :
+	const inputPrixMax = document.getElementById('range');
+	if (inputPrixMax) {
+		inputPrixMax.addEventListener('input', (event) => {
+			const valeur = event.target.value;
+			const piecesFiltrees = pieces.filter((piece) => piece.prix <= valeur);
+			genererPieces(piecesFiltrees);
+		});
+	}
 
-// bouton Filter pieces sans decription avec filter() :
-const btnFiltrerNoDesc = document.querySelector('.btn-nodesc');
-btnFiltrerNoDesc.addEventListener('click', () => {
-	const piecesFiltrees = pieces.filter((piece) => piece.description);
-	document.querySelector('.fiches').innerHTML = '';
-	genererPieces(piecesFiltrees);
-});
+	// bouton reset
+	const btnReset = document.querySelector('.btn-reset');
+	if (btnReset) {
+		btnReset.addEventListener('click', () => {
+			genererPieces(pieces);
+		});
+	}
 
-// Balise input [range] pour filtrer par prix :
-const inputPrixMax = document.getElementById('range');
-inputPrixMax.addEventListener('input', (event) => {
-	const valeur = event.target.value;
-	const piecesFiltrees = pieces.filter((piece) => piece.prix <= valeur);
-	document.querySelector('.fiches').innerHTML = '';
-	genererPieces(piecesFiltrees);
-});
+	// Bouton de mise à jour de la liste des pièces dans le Local Storage
+	const btnMiseAJour = document.querySelector('.btn-maj');
+	if (btnMiseAJour) {
+		btnMiseAJour.addEventListener('click', async () => {
+			window.localStorage.removeItem('pieces');
+			window.location.reload();
+		});
+	}
 
-// bouton reset
-document.querySelector('.btn-reset').addEventListener('click', () => {
-	document.querySelector('.fiches').innerHTML = '';
-	genererPieces(pieces);
-});
+	// Bouton de génération d'avis aléatoires
+	const btnGenererAvis = document.querySelector('.btn-generer-avis');
+	if (btnGenererAvis) {
+		btnGenererAvis.addEventListener('click', async () => {
+			try {
+				// Désactiver le bouton pendant la génération
+				btnGenererAvis.disabled = true;
+				btnGenererAvis.textContent = 'Génération en cours...';
 
-// Bouton de mise à jour de la liste des pièces dans le Local Storage
-const btnMiseAJour = document.querySelector('.btn-maj');
+				// Générer des avis pour chaque pièce
+				for (let piece of pieces) {
+					// Générer 1 à 3 avis par pièce
+					const nombreAvis = Math.floor(Math.random() * 3) + 1;
+					const avisGeneres = genererMultiplesAvis(piece.id, nombreAvis);
 
-btnMiseAJour.addEventListener('click', () => {
-	window.localStorage.removeItem('pieces');
-});
+					// Envoyer chaque avis au serveur
+					for (let avis of avisGeneres) {
+						await envoyerAvisGenere(avis);
+					}
+				}
 
-await afficherGraphiqueAvis();
+				// Mettre à jour l'affichage des graphiques
+				await afficherGraphiqueAvis();
+
+				// Réactiver le bouton
+				btnGenererAvis.disabled = false;
+				btnGenererAvis.textContent = 'Générer des avis aléatoires';
+
+				// Afficher un message de confirmation
+				alert('Les avis ont été générés avec succès !');
+			} catch (error) {
+				console.error('Erreur lors de la génération des avis:', error);
+				alert('Une erreur est survenue lors de la génération des avis.');
+
+				// Réactiver le bouton en cas d'erreur
+				btnGenererAvis.disabled = false;
+				btnGenererAvis.textContent = 'Générer des avis aléatoires';
+			}
+		});
+	}
+};
+
+// Fonction pour charger les pièces depuis l'API
+const chargerPieces = async () => {
+	try {
+		const reponse = await fetch('http://localhost:8081/pieces');
+		if (!reponse.ok) {
+			throw new Error(`Erreur HTTP: ${reponse.status}`);
+		}
+		return await reponse.json();
+	} catch (error) {
+		console.error('Erreur lors du chargement des pièces:', error);
+		return [];
+	}
+};
+
+// Fonction d'initialisation principale
+const initialize = async () => {
+	try {
+		// Récupération des pièces depuis le localStorage ou l'API
+		let piecesFromStorage = window.localStorage.getItem('pieces');
+
+		if (piecesFromStorage === null) {
+			// Si pas de données en cache, charger depuis l'API
+			pieces = await chargerPieces();
+			if (pieces.length > 0) {
+				window.localStorage.setItem('pieces', JSON.stringify(pieces));
+			}
+		} else {
+			pieces = JSON.parse(piecesFromStorage);
+		}
+
+		// Initialisation de l'interface
+		genererPieces(pieces);
+		ajoutListenerEnvoyerAvis();
+		initializeEventListeners();
+
+		// Affichage des avis existants
+		for (let piece of pieces) {
+			const avisJSON = window.localStorage.getItem(`avis-piece-${piece.id}`);
+			if (avisJSON !== null) {
+				const avis = JSON.parse(avisJSON);
+				const pieceElement = document.querySelector(
+					`article[data-id="${piece.id}"]`
+				);
+				if (pieceElement) {
+					afficherAvis(pieceElement, avis);
+				}
+			}
+		}
+
+		// Initialisation des graphiques
+		await afficherGraphiqueAvis();
+	} catch (error) {
+		console.error("Erreur lors de l'initialisation:", error);
+		alert("Une erreur est survenue lors de l'initialisation de l'application.");
+	}
+};
+
+// Démarrage de l'application quand le DOM est chargé
+document.addEventListener('DOMContentLoaded', initialize);
